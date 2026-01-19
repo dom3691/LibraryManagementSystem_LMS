@@ -2,6 +2,28 @@
 
 A RESTful API built with ASP.NET Core Web API for managing a library system. This application provides endpoints for managing books with JWT-based authentication.
 
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/dom3691/LibraryManagementSystem_LMS.git
+cd LibraryManagementSystem_LMS
+
+# Navigate to the API project
+cd LibraryManagement.API
+
+# Run the application
+dotnet run
+```
+
+The application will start on `http://localhost:5000` or `https://localhost:5001`. Open the URL in your browser to access Swagger UI for interactive testing.
+
+**First Steps:**
+1. Register a user via `POST /api/auth/register` in Swagger
+2. Copy the JWT token from the response
+3. Click "Authorize" in Swagger and paste the token
+4. Start testing the book endpoints!
+
 ## Features
 
 - **Book Management**: Create, read, update, and delete book records
@@ -25,11 +47,26 @@ A RESTful API built with ASP.NET Core Web API for managing a library system. Thi
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd LibraryManagement
+git clone https://github.com/dom3691/LibraryManagementSystem_LMS.git
+cd LibraryManagementSystem_LMS
 ```
 
-### 2. Configure the Database Connection
+### 2. Verify Prerequisites
+
+Before running the application, ensure you have:
+
+- **.NET 8.0 SDK** installed. Verify by running:
+  ```bash
+  dotnet --version
+  ```
+  You should see version 8.0.x or higher.
+
+- **SQL Server** installed and running. The application uses LocalDB by default, which comes with Visual Studio. To verify LocalDB is available:
+  ```bash
+  sqllocaldb info
+  ```
+
+### 3. Configure the Database Connection
 
 The default connection string in `appsettings.json` uses LocalDB:
 
@@ -39,24 +76,60 @@ The default connection string in `appsettings.json` uses LocalDB:
 }
 ```
 
-If you're using a different SQL Server instance, update the connection string accordingly.
+**If you're using a different SQL Server instance**, update the connection string in `LibraryManagement.API/appsettings.json`:
 
-### 3. Run the Application
+- **SQL Server Express**: `Server=.\SQLEXPRESS;Database=LibraryManagementDb;Trusted_Connection=True;MultipleActiveResultSets=true`
+- **Full SQL Server**: `Server=localhost;Database=LibraryManagementDb;User Id=your_username;Password=your_password;`
+
+### 4. Restore Dependencies
+
+Navigate to the project directory and restore NuGet packages:
+
+```bash
+cd LibraryManagement.API
+dotnet restore
+```
+
+### 5. Run the Application
+
+From the `LibraryManagement.API` directory, run:
+
+```bash
+dotnet run
+```
+
+**Or from the solution root:**
 
 ```bash
 dotnet run --project LibraryManagement.API
 ```
 
-The application will:
-- Create the database automatically if it doesn't exist
-- Seed the database with sample books
-- Start the API server (typically at `https://localhost:5001` or `http://localhost:5000`)
+**What happens when you run:**
+1. The application builds the project
+2. Creates the database automatically if it doesn't exist (using `EnsureCreated()`)
+3. Seeds the database with 8 sample books (if the database is empty)
+4. Starts the API server
 
-### 4. Access Swagger UI
+**Expected output:**
+```
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: https://localhost:5001
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+```
 
-Once the application is running, navigate to:
+**Note:** The actual ports may vary. Check the console output for the exact URLs.
+
+### 6. Access Swagger UI
+
+Once the application is running, open your browser and navigate to:
+
 - **Swagger UI**: `http://localhost:5000` or `https://localhost:5001`
 - The Swagger interface provides interactive API documentation and testing capabilities
+
+**Note:** If you see a certificate warning for HTTPS, click "Advanced" and "Proceed" (this is normal for development).
 
 ## API Endpoints
 
@@ -162,54 +235,286 @@ Content-Type: application/json
 DELETE /api/books/{id}
 ```
 
-## Testing the API
+## How to Test the Application
 
-### Using Swagger UI
+### Method 1: Using Swagger UI (Recommended for First-Time Testing)
 
-1. Start the application
-2. Navigate to the Swagger UI (root URL)
-3. Click on the "Authorize" button at the top
-4. Register a new user using `/api/auth/register`
-5. Copy the JWT token from the response
-6. Click "Authorize" again and paste the token (format: `Bearer <token>`)
-7. Test the book endpoints
+Swagger UI provides an interactive interface to test all API endpoints without needing external tools.
 
-### Using cURL
+#### Step-by-Step Instructions:
 
-#### 1. Register a user:
-```bash
-curl -X POST "https://localhost:5001/api/auth/register" \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"testuser\",\"email\":\"test@example.com\",\"password\":\"password123\"}"
+1. **Start the application** (if not already running):
+   ```bash
+   dotnet run --project LibraryManagement.API
+   ```
+
+2. **Open Swagger UI** in your browser:
+   - Navigate to `http://localhost:5000` or `https://localhost:5001`
+   - You should see the Swagger interface with all available endpoints
+
+3. **Register a new user**:
+   - Expand the `POST /api/auth/register` endpoint
+   - Click "Try it out"
+   - Enter the following JSON in the request body:
+     ```json
+     {
+       "username": "testuser",
+       "email": "test@example.com",
+       "password": "password123"
+     }
+     ```
+   - Click "Execute"
+   - **Copy the `token` value** from the response (you'll need it for authenticated requests)
+
+4. **Authorize with JWT token**:
+   - Click the green "Authorize" button at the top right of the Swagger page
+   - In the "Value" field, paste your token (format: `Bearer <your-token>`)
+   - Click "Authorize", then "Close"
+
+5. **Test Book Endpoints**:
+   
+   **Get All Books:**
+   - Expand `GET /api/books`
+   - Click "Try it out"
+   - Optionally add query parameters:
+     - `search`: Filter by title or author (e.g., "Gatsby")
+     - `pageNumber`: Page number (default: 1)
+     - `pageSize`: Items per page (default: 10)
+   - Click "Execute"
+   - View the response with the list of books
+
+   **Get Book by ID:**
+   - Expand `GET /api/books/{id}`
+   - Click "Try it out"
+   - Enter a book ID (e.g., 1)
+   - Click "Execute"
+
+   **Create a New Book:**
+   - Expand `POST /api/books`
+   - Click "Try it out"
+   - Enter the request body:
+     ```json
+     {
+       "title": "The Art of Programming",
+       "author": "John Smith",
+       "isbn": "978-0-123456-78-9",
+       "publishedDate": "2023-01-15T00:00:00Z"
+     }
+     ```
+   - Click "Execute"
+   - Note the `id` in the response for future operations
+
+   **Update a Book:**
+   - Expand `PUT /api/books/{id}`
+   - Click "Try it out"
+   - Enter the book ID to update
+   - Modify the request body with new values
+   - Click "Execute"
+
+   **Delete a Book:**
+   - Expand `DELETE /api/books/{id}`
+   - Click "Try it out"
+   - Enter the book ID to delete
+   - Click "Execute"
+
+6. **Test Search Functionality**:
+   - Use `GET /api/books` with the `search` parameter
+   - Try searching for "Gatsby" or "Orwell" to filter books
+
+7. **Test Pagination**:
+   - Use `GET /api/books` with `pageNumber=1` and `pageSize=5`
+   - Check the response headers for pagination metadata:
+     - `X-Total-Count`: Total number of books
+     - `X-Page-Number`: Current page
+     - `X-Page-Size`: Items per page
+     - `X-Total-Pages`: Total pages
+
+### Method 2: Using cURL (Command Line)
+
+#### Prerequisites:
+- Windows: Use PowerShell or Git Bash
+- Linux/Mac: Use Terminal
+- Note: For Windows PowerShell, you may need to escape quotes differently
+
+#### Step-by-Step Instructions:
+
+1. **Register a new user**:
+   ```bash
+   curl -X POST "http://localhost:5000/api/auth/register" `
+     -H "Content-Type: application/json" `
+     -d '{\"username\":\"testuser\",\"email\":\"test@example.com\",\"password\":\"password123\"}'
+   ```
+   
+   **Save the token** from the response for the next steps.
+
+2. **Login** (alternative to registration):
+   ```bash
+   curl -X POST "http://localhost:5000/api/auth/login" `
+     -H "Content-Type: application/json" `
+     -d '{\"usernameOrEmail\":\"testuser\",\"password\":\"password123\"}'
+   ```
+
+3. **Get all books** (replace `<token>` with your actual token):
+   ```bash
+   curl -X GET "http://localhost:5000/api/books" `
+     -H "Authorization: Bearer <token>"
+   ```
+
+4. **Get all books with search**:
+   ```bash
+   curl -X GET "http://localhost:5000/api/books?search=Gatsby" `
+     -H "Authorization: Bearer <token>"
+   ```
+
+5. **Get all books with pagination**:
+   ```bash
+   curl -X GET "http://localhost:5000/api/books?pageNumber=1&pageSize=5" `
+     -H "Authorization: Bearer <token>"
+   ```
+
+6. **Get a specific book by ID**:
+   ```bash
+   curl -X GET "http://localhost:5000/api/books/1" `
+     -H "Authorization: Bearer <token>"
+   ```
+
+7. **Create a new book**:
+   ```bash
+   curl -X POST "http://localhost:5000/api/books" `
+     -H "Authorization: Bearer <token>" `
+     -H "Content-Type: application/json" `
+     -d '{\"title\":\"New Book\",\"author\":\"Author Name\",\"isbn\":\"978-0-123456-78-9\",\"publishedDate\":\"2023-01-15T00:00:00Z\"}'
+   ```
+
+8. **Update a book** (replace `{id}` with actual book ID):
+   ```bash
+   curl -X PUT "http://localhost:5000/api/books/1" `
+     -H "Authorization: Bearer <token>" `
+     -H "Content-Type: application/json" `
+     -d '{\"title\":\"Updated Title\",\"author\":\"Updated Author\",\"isbn\":\"978-0-123456-78-9\",\"publishedDate\":\"2023-01-15T00:00:00Z\"}'
+   ```
+
+9. **Delete a book** (replace `{id}` with actual book ID):
+   ```bash
+   curl -X DELETE "http://localhost:5000/api/books/1" `
+     -H "Authorization: Bearer <token>"
+   ```
+
+**Note for PowerShell users:** Use backticks (`) for line continuation in PowerShell. For Linux/Mac, use backslashes (\).
+
+### Method 3: Using Postman
+
+#### Step-by-Step Instructions:
+
+1. **Import or Create Collection**:
+   - Open Postman
+   - Create a new collection named "Library Management API"
+
+2. **Set up Environment Variables** (Optional but recommended):
+   - Create a new environment
+   - Add variables:
+     - `baseUrl`: `http://localhost:5000`
+     - `token`: (will be set after login)
+
+3. **Register a User**:
+   - Create a new request: `POST {{baseUrl}}/api/auth/register`
+   - Go to "Body" tab, select "raw" and "JSON"
+   - Enter:
+     ```json
+     {
+       "username": "testuser",
+       "email": "test@example.com",
+       "password": "password123"
+     }
+     ```
+   - Click "Send"
+   - Copy the `token` from response and save it to your environment variable
+
+4. **Login** (Alternative):
+   - Create: `POST {{baseUrl}}/api/auth/login`
+   - Body:
+     ```json
+     {
+       "usernameOrEmail": "testuser",
+       "password": "password123"
+     }
+     ```
+   - Save the token
+
+5. **Configure Authorization for Book Endpoints**:
+   - For each book endpoint, go to "Authorization" tab
+   - Type: "Bearer Token"
+   - Token: `{{token}}` (or paste the token directly)
+
+6. **Test Book Endpoints**:
+   - `GET {{baseUrl}}/api/books` - Get all books
+   - `GET {{baseUrl}}/api/books?search=Gatsby` - Search books
+   - `GET {{baseUrl}}/api/books?pageNumber=1&pageSize=5` - Paginated results
+   - `GET {{baseUrl}}/api/books/1` - Get book by ID
+   - `POST {{baseUrl}}/api/books` - Create book (with JSON body)
+   - `PUT {{baseUrl}}/api/books/1` - Update book (with JSON body)
+   - `DELETE {{baseUrl}}/api/books/1` - Delete book
+
+### Method 4: Using .NET HttpClient (C#)
+
+Create a simple console application or use a C# script:
+
+```csharp
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main()
+    {
+        var client = new HttpClient();
+        var baseUrl = "http://localhost:5000";
+
+        // Register
+        var registerData = new
+        {
+            username = "testuser",
+            email = "test@example.com",
+            password = "password123"
+        };
+        
+        var registerJson = JsonSerializer.Serialize(registerData);
+        var registerContent = new StringContent(registerJson, Encoding.UTF8, "application/json");
+        var registerResponse = await client.PostAsync($"{baseUrl}/api/auth/register", registerContent);
+        var registerResult = await registerResponse.Content.ReadAsStringAsync();
+        Console.WriteLine($"Register: {registerResult}");
+
+        // Extract token (you'll need to parse the JSON)
+        // Then use it in subsequent requests:
+        // client.DefaultRequestHeaders.Authorization = 
+        //     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+    }
+}
 ```
 
-#### 2. Login:
-```bash
-curl -X POST "https://localhost:5001/api/auth/login" \
-  -H "Content-Type: application/json" \
-  -d "{\"usernameOrEmail\":\"testuser\",\"password\":\"password123\"}"
-```
+### Testing Checklist
 
-#### 3. Get all books (replace `<token>` with the token from login):
-```bash
-curl -X GET "https://localhost:5001/api/books" \
-  -H "Authorization: Bearer <token>"
-```
+Use this checklist to verify all functionality:
 
-#### 4. Create a book:
-```bash
-curl -X POST "https://localhost:5001/api/books" \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d "{\"title\":\"New Book\",\"author\":\"Author Name\",\"isbn\":\"978-0-123456-78-9\",\"publishedDate\":\"2023-01-15T00:00:00Z\"}"
-```
-
-### Using Postman
-
-1. Import the API endpoints (or manually add them)
-2. Register/Login to get a JWT token
-3. Set the Authorization header to `Bearer <token>` for all book endpoints
-4. Test the CRUD operations
+- [ ] Application starts without errors
+- [ ] Database is created automatically
+- [ ] Sample books are seeded (8 books)
+- [ ] Can register a new user
+- [ ] Can login with registered user
+- [ ] JWT token is received after login
+- [ ] Can get all books (with authentication)
+- [ ] Can get a specific book by ID
+- [ ] Can create a new book
+- [ ] Can update an existing book
+- [ ] Can delete a book
+- [ ] Search functionality works (by title/author)
+- [ ] Pagination works correctly
+- [ ] Unauthorized requests return 401
+- [ ] Invalid requests return appropriate error codes
+- [ ] Swagger UI is accessible and functional
 
 ## Project Structure
 
