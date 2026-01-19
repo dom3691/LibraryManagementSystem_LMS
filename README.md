@@ -455,67 +455,6 @@ Swagger UI provides an interactive interface to test all API endpoints without n
    - `PUT {{baseUrl}}/api/books/1` - Update book (with JSON body)
    - `DELETE {{baseUrl}}/api/books/1` - Delete book
 
-### Method 4: Using .NET HttpClient (C#)
-
-Create a simple console application or use a C# script:
-
-```csharp
-using System;
-using System.Net.Http;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-
-class Program
-{
-    static async Task Main()
-    {
-        var client = new HttpClient();
-        var baseUrl = "http://localhost:5000";
-
-        // Register
-        var registerData = new
-        {
-            username = "testuser",
-            email = "test@example.com",
-            password = "password123"
-        };
-        
-        var registerJson = JsonSerializer.Serialize(registerData);
-        var registerContent = new StringContent(registerJson, Encoding.UTF8, "application/json");
-        var registerResponse = await client.PostAsync($"{baseUrl}/api/auth/register", registerContent);
-        var registerResult = await registerResponse.Content.ReadAsStringAsync();
-        Console.WriteLine($"Register: {registerResult}");
-
-        // Extract token (you'll need to parse the JSON)
-        // Then use it in subsequent requests:
-        // client.DefaultRequestHeaders.Authorization = 
-        //     new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-    }
-}
-```
-
-### Testing Checklist
-
-Use this checklist to verify all functionality:
-
-- [ ] Application starts without errors
-- [ ] Database is created automatically
-- [ ] Sample books are seeded (8 books)
-- [ ] Can register a new user
-- [ ] Can login with registered user
-- [ ] JWT token is received after login
-- [ ] Can get all books (with authentication)
-- [ ] Can get a specific book by ID
-- [ ] Can create a new book
-- [ ] Can update an existing book
-- [ ] Can delete a book
-- [ ] Search functionality works (by title/author)
-- [ ] Pagination works correctly
-- [ ] Unauthorized requests return 401
-- [ ] Invalid requests return appropriate error codes
-- [ ] Swagger UI is accessible and functional
-
 ## Project Structure
 
 ```
@@ -564,26 +503,6 @@ LibraryManagement/
 - **BCrypt.Net**: Password hashing
 - **Logging**: Built-in .NET logging
 
-## Configuration
-
-### JWT Settings
-
-JWT configuration can be modified in `appsettings.json`:
-
-```json
-"Jwt": {
-  "Key": "YourSuperSecretKeyThatShouldBeAtLeast32CharactersLongForHS256Algorithm",
-  "Issuer": "LibraryManagement",
-  "Audience": "LibraryManagement"
-}
-```
-
-**Important**: In production, use a secure, randomly generated key and store it securely (e.g., environment variables, Azure Key Vault, etc.).
-
-### Database Connection
-
-Update the connection string in `appsettings.json` to match your SQL Server instance.
-
 ## Database Seeding
 
 The application automatically seeds the database with sample books on startup if the database is empty. Sample books include classics like "The Great Gatsby", "1984", "To Kill a Mockingbird", etc.
@@ -599,37 +518,6 @@ The API returns appropriate HTTP status codes:
 - `404 Not Found`: Resource not found
 - `500 Internal Server Error`: Server errors
 
-## Best Practices Implemented
-
-- ✅ Clean architecture with separation of concerns
-- ✅ Dependency Injection
-- ✅ DTOs for data transfer
-- ✅ AutoMapper for object mapping
-- ✅ Comprehensive exception handling
-- ✅ Meaningful HTTP status codes
-- ✅ Input validation
-- ✅ Logging
-- ✅ JWT-based authentication
-- ✅ RESTful API design
-- ✅ Swagger/OpenAPI documentation
-
-## Bonus Features
-
-- ✅ **Search Functionality**: Filter books by title or author
-- ✅ **Pagination**: Efficient data retrieval with page number and page size
-- ✅ **Swagger/OpenAPI**: Interactive API documentation
-
-## Troubleshooting
-
-### Database Connection Issues
-
-If you encounter database connection errors:
-1. Ensure SQL Server (or LocalDB) is installed and running
-2. Verify the connection string in `appsettings.json`
-3. Check that the database server is accessible
-
-### Port Conflicts
-
 If the default ports are in use, the application will automatically select different ports. Check the console output for the actual URLs.
 
 ### JWT Token Issues
@@ -638,10 +526,4 @@ If the default ports are in use, the application will automatically select diffe
 - Check that the token hasn't expired (default: 24 hours)
 - Verify the JWT key in `appsettings.json` matches between token generation and validation
 
-## License
 
-This project is created for recruitment exercise purposes.
-
-## Contact
-
-For questions or issues, please refer to the repository or contact the development team.
